@@ -142,9 +142,30 @@ and the finding stays open rather than being closed as unfixable.
 
 ## What this policy does not do
 
-It does not certify anything, and it is not a warranty. The intended-use notice
-in [NOTICE.md](NOTICE.md) and the license carry the warranty and liability
-position.
+It does not certify anything, and it is not a warranty.
+
+It does not carry the warranty and liability position either, and today nothing
+in this repository does. [NOTICE.md](NOTICE.md) defers that position to the
+license, and there is no license here:
+
+    $ git ls-tree HEAD LICENSE LICENSE.md COPYING ; echo "exit=$?"
+    exit=0
+    $ gh api repos/iderex/nachtwache --jq '{license: .license}'
+    {"license":null}
+
+The listing above is empty and the exit status is zero, which is `git ls-tree`
+reporting that it matched nothing rather than that it failed. The field is asked
+for inside an object because `--jq '.license'` on a null field prints an empty
+line, and an empty line is not readable as an answer. So the chain a reader
+follows to find the warranty position runs from here to `NOTICE.md` to a file
+that is not in the tree.
+
+What follows from that absence is larger than a warranty disclaimer, and
+[GOVERNANCE.md](GOVERNANCE.md) states it: with no license the default is
+exclusive copyright, so nobody may legally run, modify or redistribute this.
+Entry 1 of issue #2 is where that is answered and issue #82 is where the answer
+is applied. Until then this section says what is true rather than pointing at a
+document that would say it.
 
 It does not promise that anybody is watching the private route at three in the
 morning. One maintainer is one maintainer, and
