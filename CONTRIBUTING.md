@@ -57,7 +57,8 @@ true-sounding sentence turns out to be false.
 ## Sign your work
 
 Every commit needs a Developer Certificate of Origin sign-off. The check refuses
-a pull request in which any non-merge commit lacks one.
+a pull request in which any non-merge commit lacks one, with one carve-out that
+the section below states rather than leaves to be found.
 
     git commit -s
 
@@ -66,6 +67,28 @@ trailer to the commit author exactly, so `Signed-off-by: A Name <a@example.com>`
 matches a commit authored by `A Name <a@example.com>` and nothing else. If you
 have already committed, `git rebase --signoff <base>` adds the trailer to a
 range.
+
+The carve-out is for commits that automation writes, which cannot sign for
+themselves. Those author addresses are skipped rather than checked:
+
+    $ git grep -n 'bot\]@users.noreply.github.com' -- .github/workflows/dco.yml
+    .github/workflows/dco.yml:62:              *"+dependabot[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:63:              | "dependabot[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:64:              | *"+github-actions[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:65:              | "github-actions[bot]@users.noreply.github.com")
+
+Two of those four entries are exact and two carry a leading wildcard. The comment
+above them in that file says the list is not a glob and that a contributor
+therefore cannot exempt themselves by choosing a bot-shaped author address. That
+is narrower than a glob over every `[bot]` address and it is still a glob, and
+the check reads the address a commit claims rather than an identity anybody
+verified, so a local `user.email` ending in one of the two wildcard forms is
+enough to have a commit skipped. Issue #36 carries that measurement with the
+proof.
+
+Read the sign-off as something a contributor asserts rather than as something
+this repository establishes. That is what the certificate is in the first place,
+and it is worth knowing before anybody requires the check by name.
 
 One thing that check's failure message says is not true of this repository. It
 points a contributor at a file `DCO` in the root, and there is no such file:
