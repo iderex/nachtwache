@@ -58,8 +58,12 @@ should read that as a promise that it will be merged.
 The uncomfortable answer first. Today, nothing can happen, because nobody else is
 allowed to continue it:
 
-    $ gh api repos/iderex/nachtwache --jq '.license'
-    null
+    $ gh api repos/iderex/nachtwache --jq '{license: .license}'
+    {"license":null}
+
+The field is asked for inside an object rather than on its own, because
+`--jq '.license'` on a null field prints an empty line, and an empty line is not
+readable as an answer.
 
 With no license file, the default is exclusive copyright. Nobody may legally run,
 modify or redistribute this, which means a fork is not available as a continuity
