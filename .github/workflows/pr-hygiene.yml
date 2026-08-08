@@ -1,0 +1,77 @@
+name: pr-hygiene
+
+on:
+  # Pull requests only, over every branch. unicode-guard declares push as well,
+  # which makes one head produce two runs under one check-run name, so which run
+  # a reader is looking at decides the verdict. CONTRIBUTING.md carries that
+  # measurement; this workflow does not repeat the shape.
+  pull_request:
+    branches: ["**"]
+
+# Read-only. The check reads git history, the pull request body, and the bodies
+# of the issues that body names. It writes nothing anywhere.
+permissions:
+  contents: read
+  issues: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # The check-run name is what a required status check on the protected branch
+  # matches, so it is set here and #35 fixes the spelling.
+  hygiene:
+    name: Deterministic PR-hygiene checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The whole history, so the base..head range is walkable. No step
+          # pushes via git, so do not persist the GITHUB_TOKEN in .git/config.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Collect the body and the scopes it names
+        # Everything from the event goes through the environment and is never
+        # interpolated into the script, so a body somebody wrote cannot be
+        # evaluated as shell.
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          mkdir -p "${RUNNER_TEMP}/hygiene"
+          printf '%s' "${PR_BODY}" > "${RUNNER_TEMP}/hygiene/body.md"
+          mkdir -p "${RUNNER_TEMP}/hygiene/issues"
+          # One file per issue the body names, named for the number. An issue
+          # that cannot be read leaves no file, and the check reports it as one
+          # whose scope was not read rather than treating it as no scope.
+          for n in $(grep -oE '#[0-9]+' "${RUNNER_TEMP}/hygiene/body.md" | tr -d '#' | sort -un); do
+            if gh api "repos/${REPO}/issues/${n}" --jq '.body' \
+              > "${RUNNER_TEMP}/hygiene/issues/${n}" 2>/dev/null; then
+              echo "read issue ${n}"
+            else
+              rm -f "${RUNNER_TEMP}/hygiene/issues/${n}"
+              echo "could not read issue ${n}"
+            fi
+          done
+
+      - name: Refuse the deterministic hygiene faults
+        # The logic is in the script rather than in this block so that it runs
+        # on a contributor's machine with one command, and so that it can be
+        # pointed at a fixture repository with a deliberate fault in it. That is
+        # how each rule is shown to bite without the fault ever being in this
+        # tree. What it refuses, and what it does not, is in the script header.
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          .github/scripts/check-pr-hygiene.sh \
+            --body "${RUNNER_TEMP}/hygiene/body.md" \
+            --base "${BASE_SHA}" \
+            --head "${HEAD_SHA}" \
+            --issues "${RUNNER_TEMP}/hygiene/issues"
