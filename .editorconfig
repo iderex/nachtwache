@@ -1,0 +1,28 @@
+# What an editor does before git sees the file. .gitattributes decides what is
+# stored; this decides what is typed, so the two agree and a contributor does
+# not produce a diff their editor made.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.go]
+indent_style = tab
+
+[*.sh]
+indent_style = tab
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# The counterpart to the -text line in .gitattributes. A fixture opened in an
+# editor must come back out byte for byte, so nothing is trimmed, no final
+# newline is added, and the line endings are left as they arrived.
+[**/testdata/**]
+end_of_line = unset
+insert_final_newline = false
+trim_trailing_whitespace = false
