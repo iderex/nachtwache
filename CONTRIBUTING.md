@@ -125,11 +125,48 @@ document drifts against the thing it describes:
     .github/workflows/zizmor.yml:21:name: Workflow Security Analysis
     .github/workflows/zizmor.yml:41:    name: Audit workflows (zizmor)
 
-The second name in each pair is the check run, which is the name a reader sees on
-a pull request and the name a protection rule would have to use. Four of the five
-produce a run on a pull request. `Scorecard analysis` does not: it is triggered by
-a push to the default branch, by a weekly schedule and by a change to the branch
-protection, so it audits what has already landed and never gates a change.
+Read that output as the workflow name and the job name, and not yet as the names
+a reader sees. Where a job sets `name:`, the check run takes it, which is where
+`DCO sign-off`, `Reject Trojan Source Unicode`, `Audit workflows (zizmor)` and
+`Scorecard analysis` come from. Where a job sets none, the check run takes the
+job id instead, and `dependency-review` is that case, so the name a protection
+rule would have to use is in the file and not in the output above:
+
+    $ git show origin/main:.github/workflows/dependency-review.yml | sed -n '15,20p'
+    jobs:
+      # No `name:` on this job: the "Protect main" ruleset's required status check
+      # matches the literal check-run name, which defaults to the job id
+      # ("dependency-review") when no `name:` is set. Overriding it here would
+      # rename the check run and silently break the required-status-check gate.
+      dependency-review:
+
+The names a reader actually sees are on a pull request head rather than in the
+tree, so that is where they are read from. Taken from the head of pull request
+#94, which is the most recently merged one:
+
+    $ gh api repos/iderex/nachtwache/commits/54ded4e2bc66911b2d8768eb7a4e843b20bfe02f/check-runs --jq '[.check_runs[] | {name, app: .app.slug}]'
+    [{"app":"github-advanced-security","name":"zizmor"},{"app":"github-actions","name":"Audit workflows (zizmor)"},{"app":"github-actions","name":"dependency-review"},{"app":"github-actions","name":"Reject Trojan Source Unicode"},{"app":"github-actions","name":"DCO sign-off"},{"app":"github-actions","name":"Reject Trojan Source Unicode"}]
+
+Run the same command against your own head to see what your change produced.
+
+Two things in that output are in no workflow file. `zizmor` is not a job in
+`.github/workflows/zizmor.yml`. It comes from another application, the code
+scanning ingest, and is named by the `category:` on the step that uploads the
+audit result. That step carries `continue-on-error: true`, so it can report
+success while the audit that fails the build has failed, and the name that means
+the audit is the job rather than this one. `Reject Trojan Source Unicode`
+appears twice, because `.github/workflows/unicode-guard.yml` declares both a
+`push` and a `pull_request` trigger over every branch, so a branch that is
+pushed and then opened runs the same job twice against one head, and a name that
+two runs produce is a name whose verdict depends on which run is read.
+
+Issue #36 is where these names are required by the branch protection, and it
+carries both measurements with the working they came from.
+
+Four of the five workflows produce a run on a pull request. `Scorecard analysis`
+does not: it is triggered by a push to the default branch, by a weekly schedule
+and by a change to the branch protection, so it audits what has already landed
+and never gates a change.
 
 `DCO sign-off` is the sign-off check above.
 
