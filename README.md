@@ -19,6 +19,12 @@ by this project.
 leave when they are configured, what each other party learns from them, and what
 refuses a fourth once there is code to refuse it in.
 
+The alerts belong to the observatory that publishes them, and an operator who
+publishes something they found this way acknowledges it.
+[docs/upstream-terms.md](docs/upstream-terms.md) carries the terms per upstream
+with the date each was read, the acknowledgement text ready to copy, and what an
+alert is not.
+
 Planning happens on the issue tracker first. Every decision that shapes
 the architecture is written down there with its reasons before the code
 that depends on it exists.
