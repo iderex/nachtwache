@@ -239,36 +239,85 @@ therefore not established here.
 ### ALeRCE
 
 Read on 2026-08-08 at <https://alerce.science/>, which redirects to
-<https://science.alerce.online/>.
+<https://science.alerce.online/>, and on the same date at
+<https://alerce.readthedocs.io/en/latest/>.
 
-No page on terms of use, on citation or on account creation was reached. The site
-navigation read on that date lists a publications page and a services page and no
-citation or terms page. Nothing about registration, acknowledgement or
-redistribution is established here.
+Neither carries terms. The site navigation read on that date lists an about page,
+a services page with a submenu of the individual services, a publications page
+and a news page, and no terms page and no citation page. The client documentation
+read on the same date has installation, tutorial, migration, API reference and
+support sections and no licence, terms, citation or account statement in any of
+them.
+
+So two routes were reached rather than none, and both are silent. Nothing about
+terms, acknowledgement, registration or redistribution is established here, and
+that is now a reading of two pages rather than a failure to open one.
 
 ### AMPEL
 
-Read on 2026-08-08 at <https://ampelproject.github.io/>.
+Read on 2026-08-08 at <https://ampelproject.github.io/> and, for the citation, at
+<https://ascl.net/2005.015>.
 
-[0003](decisions/0003-upstream-and-adapters.md) already records that the
+The project site asks for one citation:
+
+> Transient processing and analysis using AMPEL: alert management, photometry,
+> and evaluation of light curves
+
+J. Nordin et al., Astronomy and Astrophysics 631, A147 (2019). The Astrophysics
+Source Code Library entry read on the same date names the same paper as the
+preferred citation, by the bibcode `2019A&A...631A.147N`, which is why the paper
+is recorded here from two sources rather than one.
+
+Nothing else. No licence, no terms of use, no registration procedure and no
+statement on redistributing what a subscriber receives appears on either page,
+and [0003](decisions/0003-upstream-and-adapters.md) already records that the
 observatory's own page carries no description of what AMPEL offers a subscriber.
-Nothing about terms, acknowledgement, registration or redistribution is
-established here either.
 
 ### ANTARES
 
-Operated at NOIRLab. Read on 2026-08-08 at <https://antares.noirlab.edu/>.
+Operated at NOIRLab. Read on 2026-08-08 at <https://antares.noirlab.edu/>, which
+is a browser application that served no readable text on that route, and at
+<https://nsf-noirlab.gitlab.io/csdc/antares/client/acknowledgements.html>, which
+did.
 
-The site is a browser application that served no readable text on this route, so
-nothing was read from it. Nothing about terms, acknowledgement, registration or
-redistribution is established here.
+The acknowledgement asked for:
+
+> The ANTARES project has been supported by the U.S. National Science Foundation
+> through a cooperative agreement with the Association of Universities for
+> Research in Astronomy (AURA) for the operation of NSF NOIRLab, through an NSF
+> INSPIRE grant to the University of Arizona (CISE AST-1344024, PI: R.
+> Snodgrass), and through a grant from the Heising-Simons Foundation.
+
+The same page carries a second block for the survey ANTARES currently
+distributes, which is ZTF rather than this observatory, so it is not copied here.
+Whether it applies to a given publication depends on which stream the alerts came
+from.
+
+No citation requirement, no terms of use, no registration procedure and no
+statement on redistribution appears on that page.
+<https://noirlab.edu/science/about/scientific-acknowledgments> was requested on
+the same date and returned nothing readable on this route, so what NOIRLab asks
+for at the institutional level, above the client's own page, is not established
+here.
 
 ### Pitt-Google
 
-Read on 2026-08-08 at <https://pitt-broker.readthedocs.io/en/latest/>.
+Read on 2026-08-08 at <https://mwvgroup.github.io/pittgoogle-client/> and
+<https://github.com/mwvgroup/pittgoogle-client>. A third page,
+<https://pitt-broker.readthedocs.io/en/latest/>, was read on the same date in the
+earlier pass over these entries and carried nothing on this subject; it is named
+here because it is what the entry pointed at before and is not re-read.
 
-No statement on terms, acknowledgement, registration or redistribution was found
-on that page. It is the one candidate that is a library over a commercial cloud
+The client library is published under the BSD 3-Clause licence, declared in the
+repository. That is the licence of the software and it says nothing about the
+alerts, which stay under the Rubin terms above. The documentation carries a
+copyright line and no more:
+
+> Copyright 2021, The Pitt-Google Alert Broker Team
+
+No citation requirement, no acknowledgement text, no terms of use, no
+registration procedure and no statement on redistribution was found on any of the
+three. It is the one candidate that is a library over a commercial cloud
 platform, so a subscriber is likely to be creating an account with that platform
 as well as with the broker, and that is a reading of the description rather than
 something established here.
@@ -294,7 +343,18 @@ takes issue #51 re-reads all of them, because that is the issue where each
 candidate is exercised against the interface and it is the cheapest moment to
 find that an entry has gone stale.
 
-Four of the eight entries above establish nothing. That is not a placeholder for
-work somebody is doing; it is the state of what was read, and it is written as a
-gap so that an adapter is not built against an assumption that the terms were
-checked.
+One of the eight entries above establishes nothing at all, which is ALeRCE, and
+that is now the result of reading two of its pages rather than of reaching
+neither. Three more carry a citation or an acknowledgement and nothing else:
+AMPEL, ANTARES and Pitt-Google each have a gap where the terms of use, the
+registration procedure and the position on redistribution would be.
+
+Not one of the seven brokers says what a subscriber may do with the alerts after
+receiving them, and the eighth entry is the unsplit feed, where the answer is the
+Rubin policy directly because there is no second party. That policy is at the top
+of this document and it holds whichever broker delivers a packet, so what is
+missing above is each broker's position on its own enrichment and its own
+redistribution rather than the permission to have the alert. That gap is
+the state of what was read and not a placeholder for work somebody is doing, and
+it is written out so that an adapter is not built against an assumption that the
+terms were checked.
