@@ -1,0 +1,10 @@
+# No template for a suspected vulnerability, deliberately. A template would be a
+# supported way to describe one in public, and the whole point is that the
+# report never becomes a public issue. The link below is what the obvious path
+# leads to instead.
+blank_issues_enabled: false
+
+contact_links:
+  - name: A suspected vulnerability
+    url: https://github.com/iderex/nachtwache/security/advisories/new
+    about: Report privately, never as an issue. SECURITY.md carries the whole procedure and the second route if this one is unavailable to you.

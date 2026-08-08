@@ -1,0 +1,16 @@
+# Line endings are decided here rather than by whoever cloned the repository, so
+# that a contributor on Windows and one on Linux commit the same bytes and a
+# diff shows what changed instead of showing every line of a file.
+
+# Anything git recognises as text is stored with LF and checked out with LF,
+# whatever core.autocrlf says locally. Without this line a Windows clone with
+# core.autocrlf=true checks out CRLF, and an anchored pattern run against that
+# checkout silently matches nothing.
+* text=auto eol=lf
+
+# Recorded fixtures are bytes rather than text. Normalising one destroys the
+# byte it exists to prove: a message recorded off the stream, a base64 blob
+# whose decoded content carries a carriage return, an image stamp. -text turns
+# every conversion off in both directions, so what is committed is what arrived.
+# The leading **/ matches a testdata directory at any depth, including the root.
+**/testdata/** -text
