@@ -9,6 +9,16 @@ reason to look at something rather than a claim about what that thing is.
 [docs/what-this-is-not.md](docs/what-this-is-not.md) carries those two
 alongside the three other things this project does not claim.
 
+Nothing about the operator, their site, their filters, their notification
+endpoints or the alerts they received leaves their host, unless the operator
+deliberately configures a destination that receives it. There is no telemetry,
+no crash reporting, no update check, no analytics and no default endpoint owned
+by this project.
+
+[docs/data-boundary.md](docs/data-boundary.md) names the three things that do
+leave when they are configured, what each other party learns from them, and what
+refuses a fourth once there is code to refuse it in.
+
 Planning happens on the issue tracker first. Every decision that shapes
 the architecture is written down there with its reasons before the code
 that depends on it exists.
