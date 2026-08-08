@@ -1,0 +1,37 @@
+name: decision-records
+
+on:
+  # Pull requests only, over every branch. unicode-guard declares push as well,
+  # which makes one head produce two runs under one check-run name, so which run
+  # a reader is looking at decides the verdict. CONTRIBUTING.md carries that
+  # measurement; this workflow does not repeat the shape.
+  pull_request:
+    branches: ["**"]
+
+# Read-only: the check reads docs/decisions/ and writes nothing.
+permissions:
+  contents: read
+
+# Cancel a superseded run on the same ref so a new push to a pull request does
+# not queue behind an obsolete check.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  form:
+    name: Decision records
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # No step pushes via git, so do not persist the GITHUB_TOKEN in .git/config.
+          persist-credentials: false
+      - name: Refuse a decision record that departs from the form
+        # The logic is in the script rather than in this block so that it can be
+        # run on a contributor's machine and against a copy of the register with
+        # a deliberate fault in it. What it refuses, and the larger list of what
+        # it does not, is in docs/decisions/README.md.
+        run: .github/scripts/check-decisions.sh docs/decisions
