@@ -14,8 +14,8 @@ it says so in those words rather than being left out.
 ## The workflow audit
 
 `Audit workflows (zizmor)` runs on every pull request and fails on any finding of
-low severity or worse. It is green, and no finding is being explained away,
-because there is none at that threshold:
+low severity or worse. It is green, and its own output says three findings were
+suppressed:
 
     No findings to report. Good job! (3 suppressed)
 
@@ -23,27 +23,90 @@ Read from the run on the head of pull request #102 on 2026-08-08, which is the
 run of that job rather than the code-scanning upload beside it. Seven workflow
 files were audited, which is every file in the directory.
 
-Three findings are suppressed and this document does not say what they are.
-Nothing suppresses them inline. The tree carries no ignore comment at all:
+Nothing suppresses those three inline. The tree carries no ignore comment at all:
 
     $ git grep -nE 'zizmor: *ignore' -- .github/ ; echo "exit=$?"
     exit=1
 
-Exit status 1 from `git grep` is the clean result. So the three are below the
-severity threshold the workflow sets rather than silenced by anybody, and the
-threshold is doing exactly what a threshold does. That is not the same as
-knowing they are unimportant, and nobody here has read them.
+Exit status 1 from `git grep` is the clean result, so nothing here is silenced by
+hand.
 
-NOT MEASURED ON THIS ROUTE. Enumerating them means running the audit with the
-threshold lowered, which needs `uv` on the machine and is not something this
-file's evidence was produced with:
+### What the three are
 
-    uvx --no-build "zizmor@1.26.1" --strict-collection --min-severity=unknown --format=plain .
+Read on 2026-08-08 against the workflow directory as it stands at
+`a47cce933977518fa0a0ab0c9f473f6e46b6af57`, with the persona widened and nothing
+else changed. Line numbers move when a workflow does, so run the command rather
+than trusting the three below:
 
-The pinned version above is quoted from `.github/workflows/zizmor.yml`, which is
-the authority for it. Until somebody runs that and writes the three down here,
-the first condition of issue #41, that the audit produces no unexplained
-finding, is met at the gating threshold and not below it.
+    $ zizmor --strict-collection --persona=pedantic --format=plain .
+    3 findings: 1 informational, 2 low, 0 medium, 0 high
+
+- `anonymous-definition`, informational, `.github/workflows/dependency-review.yml`
+  line 20. The job carries no `name:`.
+- `undocumented-permissions`, low, `.github/workflows/pr-hygiene.yml` line 15, on
+  `issues: read`.
+- `undocumented-permissions`, low, `.github/workflows/scorecard.yml` lines 63 and
+  65, on `security-events: write` and `id-token: write`.
+
+The first is not repaired and must not be. A required status check matches the
+literal check-run name, which defaults to the job id where no `name:` is set, so
+naming that job renames the check run. The comment directly above the job already
+says this, and issue #36 is where the name is required on the protected branch.
+Satisfying the audit here would break the gate the audit is run to protect, which
+makes this a finding that stays for as long as the requirement does.
+
+The other two are accepted rather than repaired, and the accepted thing is
+narrow. Each flagged line has its reason written in the line above it, and what
+the audit asks for is a comment the flagged line itself carries. What is being
+accepted is the position that a permission documented one line up is documented,
+not the position that a permission needs no explanation. The state of those
+permission blocks on the mainline is printed under `## The permissions` below
+rather than described here.
+
+### Why the gate does not see them, which is not the severity
+
+Recorded here before was that the three sit below the severity floor the workflow
+sets. That is wrong, and two of the three are the counter-example: they are
+`low`, which is that floor rather than below it. Lowering the floor surfaces
+nothing, and the audit says why:
+
+    $ zizmor --strict-collection --min-severity=unknown --format=plain .
+     WARN zizmor: `unknown` is a deprecated minimum severity that has no effect
+     WARN zizmor: future versions of zizmor will reject this value
+    No findings to report. Good job! (3 suppressed)
+
+What excludes them is the persona. The workflow passes none, so the run takes the
+default one, and all three audits above belong to `pedantic`:
+
+    $ git grep -n -- '--persona' origin/main -- .github/workflows/zizmor.yml ; echo "exit=$?"
+    exit=1
+
+Widening the persona while holding the floor exactly where the gate holds it
+leaves the two low findings standing and drops only the informational one:
+
+    $ zizmor --strict-collection --persona=pedantic --min-severity=low --format=plain .
+    3 findings (1 ignored): 0 informational, 2 low, 0 medium, 0 high
+
+So the green tick beside the audit is a persona choice and not a statement that
+the tree is clean at the severity the job names. Nothing refuses a fourth: an
+undocumented permission added tomorrow is suppressed the same way and this file
+does not learn about it. Gating on `pedantic` is what would change that, and it
+reds today on the two findings above until each flagged line carries its own
+comment, so it is a change to the workflow rather than to this file.
+
+### The route these three came from
+
+These runs came from an installation of `zizmor` 1.26.1 beside the tree rather
+than from the workflow, which installs the same version through `uv`. The version
+is quoted from `.github/workflows/zizmor.yml`, which is the authority for it.
+What ties the two routes together is that the local run reproduces the gating
+run's output before the persona is widened, count included:
+
+    $ zizmor --strict-collection --min-severity=low --format=plain .
+    No findings to report. Good job! (3 suppressed)
+
+Nothing compares the two routes, so a divergence between them shows up only when
+somebody runs both.
 
 ## The scorecard findings
 
@@ -200,5 +263,7 @@ compares what a change adds or upgrades against the advisory database, and with
 no manifest in the tree it examines nothing. Its green is the absence of a
 question rather than an answer to one.
 
-The three findings the audit suppresses are not enumerated here, which is stated
-above in the section that would hold them rather than only in this list.
+The three findings the audit suppresses are enumerated above, and the run that
+enumerated them was made beside the tree rather than by the workflow. Nothing
+compares those two routes, and nothing refuses a fourth suppressed finding
+arriving without an entry here.
