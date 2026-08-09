@@ -101,6 +101,34 @@ What is owed, in the order it can arrive:
 Until those exist, read this document as a position the project holds rather
 than as a property the tree enforces.
 
+## The open entry this position rests on
+
+Whether a hosted or federated mode is ever intended is entry 3 of issue #2, and
+it has no answer. That entry takes the statement at the top of this document as
+its own subject. It repeats the sentence and says the sentence stays true only
+once the answer is known.
+
+    $ gh issue view 2 --json body --jq '.body' | grep -c '^## 3\. Whether a hosted or federated mode is ever intended'
+    1
+    $ gh issue view 2 --json body --jq '.body' | grep -c 'Options: never, in which case the outbound surface can be an allowlist'
+    1
+    $ gh issue view 2 --json comments --jq '.comments | length'
+    0
+
+The entry is still written as two options with their costs, and the issue
+carries no comment, so neither option has been taken. The first is never, and
+under it the outbound surface can be an allowlist holding the upstream and the
+operator's own endpoints and nothing else, which is the mechanism named above.
+The second is possibly later, and under it the boundary still has to be drawn
+now, which is a line this file does not draw.
+
+This document is written as though the first option had been taken, because that
+is what the plan assumes throughout. Read that as an assumption rather than as a
+decision recorded somewhere else. If the answer is never, the document stands as
+written. If it is not, what moves is the shape of the allowlist in issue #48 and
+what the verb in issue #83 has to print, and both are already named above as
+owed rather than built.
+
 ## What this document does not claim
 
 It does not claim that the parties named above behave. An upstream, a
