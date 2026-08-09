@@ -59,10 +59,8 @@ jobs:
       # the scope keeps checkout robust and is what Scorecard's Token-Permissions
       # check expects at the job level).
       contents: read
-      # Upload the SARIF result to the code-scanning dashboard.
-      security-events: write
-      # Publish results to the OpenSSF API (badge + public score) via OIDC.
-      id-token: write
+      security-events: write # upload the SARIF result to the code-scanning dashboard
+      id-token: write # publish results to the OpenSSF API (badge and public score) via OIDC
 
     steps:
       - name: Checkout code
