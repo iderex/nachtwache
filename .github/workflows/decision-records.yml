@@ -8,9 +8,9 @@ on:
   pull_request:
     branches: ["**"]
 
-# Read-only: the check reads docs/decisions/ and writes nothing.
-permissions:
-  contents: read
+# Nothing at the top level, so a job added here later starts from no permission
+# at all and has to name what it needs. Each job states its own below.
+permissions: {}
 
 # Cancel a superseded run on the same ref so a new push to a pull request does
 # not queue behind an obsolete check.
@@ -23,6 +23,10 @@ jobs:
     name: Decision records
     runs-on: ubuntu-latest
     timeout-minutes: 5
+
+    # Read-only: the check reads docs/decisions/ and writes nothing.
+    permissions:
+      contents: read
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
