@@ -14,16 +14,11 @@ it says so in those words rather than being left out.
 ## The workflow audit
 
 `Audit workflows (zizmor)` runs on every pull request and fails on any finding of
-low severity or worse. It is green, and its own output says three findings were
-suppressed:
+low severity or worse. It runs under the `pedantic` persona, and the reason it
+has to is the finding this section carries. Seven workflow files are audited,
+which is every file in the directory.
 
-    No findings to report. Good job! (3 suppressed)
-
-Read from the run on the head of pull request #102 on 2026-08-08, which is the
-run of that job rather than the code-scanning upload beside it. Seven workflow
-files were audited, which is every file in the directory.
-
-Nothing suppresses those three inline. The tree carries no ignore comment at all:
+Nothing suppresses a finding inline. The tree carries no ignore comment at all:
 
     $ git grep -nE 'zizmor: *ignore' -- .github/ ; echo "exit=$?"
     exit=1
@@ -31,79 +26,115 @@ Nothing suppresses those three inline. The tree carries no ignore comment at all
 Exit status 1 from `git grep` is the clean result, so nothing here is silenced by
 hand.
 
-### What the three are
+### What the persona was hiding
 
-Read on 2026-08-08 against the workflow directory as it stands at
-`a47cce933977518fa0a0ab0c9f473f6e46b6af57`, with the persona widened and nothing
-else changed. Line numbers move when a workflow does, so run the command rather
-than trusting the three below:
+Before `--persona=pedantic` was on the two invocations in
+`.github/workflows/zizmor.yml`, the job passed no persona, so it took the default
+one and reported clean while holding three findings back:
 
-    $ zizmor --strict-collection --persona=pedantic --format=plain .
-    3 findings: 1 informational, 2 low, 0 medium, 0 high
+    $ zizmor --strict-collection --min-severity=low --format=plain .
+    No findings to report. Good job! (3 suppressed)
 
-- `anonymous-definition`, informational, `.github/workflows/dependency-review.yml`
-  line 20. The job carries no `name:`.
-- `undocumented-permissions`, low, `.github/workflows/pr-hygiene.yml` line 15, on
-  `issues: read`.
-- `undocumented-permissions`, low, `.github/workflows/scorecard.yml` lines 63 and
-  65, on `security-events: write` and `id-token: write`.
+Read on 2026-08-09 against `18b5a5b8ec23e5728f0166ad65d56c461578a0bd`, which is
+the mainline the change branched from.
 
-The first is not repaired and must not be. A required status check matches the
-literal check-run name, which defaults to the job id where no `name:` is set, so
-naming that job renames the check run. The comment directly above the job already
-says this, and issue #36 is where the name is required on the protected branch.
-Satisfying the audit here would break the gate the audit is run to protect, which
-makes this a finding that stays for as long as the requirement does.
-
-The other two are accepted rather than repaired, and the accepted thing is
-narrow. Each flagged line has its reason written in the line above it, and what
-the audit asks for is a comment the flagged line itself carries. What is being
-accepted is the position that a permission documented one line up is documented,
-not the position that a permission needs no explanation. The state of those
-permission blocks on the mainline is printed under `## The permissions` below
-rather than described here.
-
-### Why the gate does not see them, which is not the severity
-
-Recorded here before was that the three sit below the severity floor the workflow
-sets. That is wrong, and two of the three are the counter-example: they are
-`low`, which is that floor rather than below it. Lowering the floor surfaces
-nothing, and the audit says why:
+Severity was not what excluded them. Two of the three are `low`, which is the
+floor the job names rather than below it, and lowering the floor surfaces
+nothing, because the value that would lower it is deprecated and has no effect.
+Read on 2026-08-08:
 
     $ zizmor --strict-collection --min-severity=unknown --format=plain .
      WARN zizmor: `unknown` is a deprecated minimum severity that has no effect
      WARN zizmor: future versions of zizmor will reject this value
     No findings to report. Good job! (3 suppressed)
 
-What excludes them is the persona. The workflow passes none, so the run takes the
-default one, and all three audits above belong to `pedantic`:
-
-    $ git grep -n -- '--persona' origin/main -- .github/workflows/zizmor.yml ; echo "exit=$?"
-    exit=1
-
-Widening the persona while holding the floor exactly where the gate holds it
-leaves the two low findings standing and drops only the informational one:
+Widening the persona while holding the floor exactly where the job holds it left
+the two low findings standing and dropped only the informational one. Read on
+2026-08-09 against the same commit:
 
     $ zizmor --strict-collection --persona=pedantic --min-severity=low --format=plain .
     3 findings (1 ignored): 0 informational, 2 low, 0 medium, 0 high
 
-So the green tick beside the audit is a persona choice and not a statement that
-the tree is clean at the severity the job names. Nothing refuses a fourth: an
-undocumented permission added tomorrow is suppressed the same way and this file
-does not learn about it. Gating on `pedantic` is what would change that, and it
-reds today on the two findings above until each flagged line carries its own
-comment, so it is a change to the workflow rather than to this file.
+- `anonymous-definition`, informational, `.github/workflows/dependency-review.yml`
+  line 19, on the job `dependency-review`, which carries no `name:`.
+- `undocumented-permissions`, low, `.github/workflows/pr-hygiene.yml` line 31, on
+  `issues: read`.
+- `undocumented-permissions`, low, `.github/workflows/scorecard.yml` lines 63 and
+  65, on `security-events: write` and `id-token: write`.
 
-### The route these three came from
+Line numbers move when a workflow does, so run the command rather than trusting
+the three above.
+
+### The two that are repaired
+
+Both `undocumented-permissions` findings asked for a comment the flagged line
+itself carries. Each of those lines had its reason written on the line above
+instead, which reads the same way to a person and not at all to the audit. The
+comments are now on the lines, in the form `zizmor.yml` was already using for its
+own block, and the audit at the persona and the floor the job runs has nothing
+left to report:
+
+    $ zizmor --strict-collection --persona=pedantic --min-severity=low --format=plain .
+    No findings to report. Good job! (1 ignored)
+
+Read on 2026-08-09 against the change that made it true. The one still ignored is
+the informational finding below.
+
+### The one that stays
+
+`anonymous-definition` is not repaired and must not be. A required status check
+matches the literal check-run name, which defaults to the job id where no `name:`
+is set, so naming that job renames the check run. The comment directly above the
+job already says this, and issue #36 is where the name is required on the
+protected branch. Satisfying the audit here would break the gate the audit is run
+to protect, which makes this a finding that stays for as long as the requirement
+does.
+
+It is informational, which is below the floor the job fails on, so it does not
+red the gate and it is the finding the count above calls ignored:
+
+    $ zizmor --strict-collection --persona=pedantic --format=plain .
+    1 finding: 1 informational, 0 low, 0 medium, 0 high
+
+### What the gate refuses now
+
+An undocumented permission added to any workflow in this directory fails
+`Audit workflows (zizmor)` rather than being dropped before the floor is applied.
+That was shown by deleting one of the two comments and running the command the
+gate runs, on 2026-08-09:
+
+    $ zizmor --strict-collection --persona=pedantic --min-severity=low --format=plain .
+    help[undocumented-permissions]: permissions without explanatory comments
+      --> .github/workflows/scorecard.yml:63:7
+       |
+    63 |       id-token: write
+       |       ^^^^^^^^^^^^^^^ needs an explanatory comment
+       |
+       = note: audit confidence → High
+       = help: audit documentation → https://docs.zizmor.sh/audits/#undocumented-permissions
+
+    2 findings (1 ignored): 0 informational, 1 low, 0 medium, 0 high
+    $ echo "exit=$?"
+    exit=12
+
+The comment was restored and the command returned to the clean output above. The
+near-miss is the state this change replaced: the same explanation one line higher
+is not a comment the flagged line carries, and it is what the three-finding run
+was reporting.
+
+What this does not reach is a finding somebody silences by hand. An ignore
+comment added to a workflow would suppress an audit again, and the first entry of
+issue #41 asks for a check that refuses one without an entry in this file.
+Nothing compares the two, and #34 is where that rule lands.
+
+### The route these runs came from
 
 These runs came from an installation of `zizmor` 1.26.1 beside the tree rather
 than from the workflow, which installs the same version through `uv`. The version
 is quoted from `.github/workflows/zizmor.yml`, which is the authority for it.
-What ties the two routes together is that the local run reproduces the gating
-run's output before the persona is widened, count included:
-
-    $ zizmor --strict-collection --min-severity=low --format=plain .
-    No findings to report. Good job! (3 suppressed)
+What ties the two routes together is that the local run reproduced the gating
+run's output before the persona was widened, count included, which is the first
+command in this section.
 
 Nothing compares the two routes, so a divergence between them shows up only when
 somebody runs both.
