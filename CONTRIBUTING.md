@@ -2,12 +2,22 @@
 
 ## What is in this repository today
 
-There is no build here, and there is no test suite. The tree is documents and
-workflow files:
+There is no build here, and there is no test suite. The tree is documents,
+workflow files, and the two shell scripts that two of those workflows run:
 
     $ git ls-tree -r --name-only HEAD
+    .editorconfig
+    .gitattributes
+    .github/ISSUE_TEMPLATE/broken.md
+    .github/ISSUE_TEMPLATE/change.md
+    .github/ISSUE_TEMPLATE/config.yml
+    .github/pull_request_template.md
+    .github/scripts/check-decisions.sh
+    .github/scripts/check-pr-hygiene.sh
     .github/workflows/dco.yml
+    .github/workflows/decision-records.yml
     .github/workflows/dependency-review.yml
+    .github/workflows/pr-hygiene.yml
     .github/workflows/scorecard.yml
     .github/workflows/unicode-guard.yml
     .github/workflows/zizmor.yml
@@ -17,20 +27,34 @@ workflow files:
     NOTICE.md
     README.md
     SECURITY.md
+    docs/data-boundary.md
+    docs/decisions/0002-language-and-toolchain.md
     docs/decisions/0003-upstream-and-adapters.md
+    docs/decisions/0004-alert-decoding-and-schema-versions.md
     docs/decisions/0005-what-is-kept-on-disk.md
+    docs/decisions/0006-how-a-filter-is-written.md
     docs/decisions/0007-what-a-filter-can-see.md
+    docs/decisions/0008-the-sky-is-computed-on-the-host.md
     docs/decisions/0009-the-notification-contract.md
     docs/decisions/0011-process-shape-and-queues.md
+    docs/decisions/0012-falling-behind.md
     docs/decisions/0013-configuration-and-secrets.md
+    docs/decisions/0014-the-operator-command-surface.md
+    docs/decisions/0015-headless-and-unelevated.md
+    docs/decisions/README.md
+    docs/parity.md
+    docs/supply-chain.md
+    docs/upstream-terms.md
     docs/what-this-is-not.md
 
-The language and the toolchain are not chosen yet, which is issue #3, and the
-first code lands under issue #16 once that decision has a file. So this document
-describes what a contribution is checked against now, and it will grow a build
-section and a test section when there is a build and a suite to describe. It does
-not describe either of them in advance, because a document that explains how to
-run a suite that does not exist is read as evidence that one does.
+The language and the toolchain are chosen, in
+[docs/decisions/0002-language-and-toolchain.md](docs/decisions/0002-language-and-toolchain.md),
+and the module that file describes is not in the listing above, because issue
+#16 is where it is created. So this document describes what a contribution is
+checked against now, and it will grow a build section and a test section when
+there is a build and a suite to describe. It does not describe either of them in
+advance, because a document that explains how to run a suite that does not exist
+is read as evidence that one does.
 
 ## Every change starts as an issue and lands as a pull request
 
@@ -54,6 +78,13 @@ reference a reader will have rather than against a working tree. A claim made
 from a working checkout and reported as the mainline is the most common way a
 true-sounding sentence turns out to be false.
 
+There are two issue forms, `.github/ISSUE_TEMPLATE/broken.md` for a report that
+the program did the wrong thing and `.github/ISSUE_TEMPLATE/change.md` for a
+change with a scope, its evidence and its done-when. The blank form is off, so
+those two and the link to the private security route are what the new issue page
+offers. A suspected vulnerability has no form on purpose, and
+[SECURITY.md](SECURITY.md) is the whole procedure for it.
+
 ## Sign your work
 
 Every commit needs a Developer Certificate of Origin sign-off. The check refuses
@@ -72,10 +103,10 @@ The carve-out is for commits that automation writes, which cannot sign for
 themselves. Those author addresses are skipped rather than checked:
 
     $ git grep -n 'bot\]@users.noreply.github.com' -- .github/workflows/dco.yml
-    .github/workflows/dco.yml:62:              *"+dependabot[bot]@users.noreply.github.com" \
-    .github/workflows/dco.yml:63:              | "dependabot[bot]@users.noreply.github.com" \
-    .github/workflows/dco.yml:64:              | *"+github-actions[bot]@users.noreply.github.com" \
-    .github/workflows/dco.yml:65:              | "github-actions[bot]@users.noreply.github.com")
+    .github/workflows/dco.yml:65:              *"+dependabot[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:66:              | "dependabot[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:67:              | *"+github-actions[bot]@users.noreply.github.com" \
+    .github/workflows/dco.yml:68:              | "github-actions[bot]@users.noreply.github.com")
 
 Two of those four entries are exact and two carry a leading wildcard. The comment
 above them in that file says the list is not a glob and that a contributor
@@ -117,7 +148,11 @@ document drifts against the thing it describes:
     $ git grep -nE '^name:|^    name:' -- .github/workflows/
     .github/workflows/dco.yml:7:name: DCO
     .github/workflows/dco.yml:24:    name: DCO sign-off
+    .github/workflows/decision-records.yml:1:name: decision-records
+    .github/workflows/decision-records.yml:23:    name: Decision records
     .github/workflows/dependency-review.yml:1:name: Dependency review
+    .github/workflows/pr-hygiene.yml:1:name: pr-hygiene
+    .github/workflows/pr-hygiene.yml:23:    name: Deterministic PR-hygiene checks
     .github/workflows/scorecard.yml:24:name: Scorecard supply-chain security
     .github/workflows/scorecard.yml:50:    name: Scorecard analysis
     .github/workflows/unicode-guard.yml:1:name: unicode-guard
@@ -127,12 +162,13 @@ document drifts against the thing it describes:
 
 Read that output as the workflow name and the job name, and not yet as the names
 a reader sees. Where a job sets `name:`, the check run takes it, which is where
-`DCO sign-off`, `Reject Trojan Source Unicode`, `Audit workflows (zizmor)` and
-`Scorecard analysis` come from. Where a job sets none, the check run takes the
-job id instead, and `dependency-review` is that case, so the name a protection
-rule would have to use is in the file and not in the output above:
+`DCO sign-off`, `Decision records`, `Deterministic PR-hygiene checks`, `Reject
+Trojan Source Unicode`, `Audit workflows (zizmor)` and `Scorecard analysis` come
+from. Where a job sets none, the check run takes the job id instead, and
+`dependency-review` is that case, so the name a protection rule would have to
+use is in the file and not in the output above:
 
-    $ git show origin/main:.github/workflows/dependency-review.yml | sed -n '15,20p'
+    $ git show origin/main:.github/workflows/dependency-review.yml | sed -n '14,19p'
     jobs:
       # No `name:` on this job: the "Protect main" ruleset's required status check
       # matches the literal check-run name, which defaults to the job id
@@ -142,12 +178,13 @@ rule would have to use is in the file and not in the output above:
 
 The names a reader actually sees are on a pull request head rather than in the
 tree, so that is where they are read from. Taken from the head of pull request
-#94, which is the most recently merged one:
+#106:
 
-    $ gh api repos/iderex/nachtwache/commits/54ded4e2bc66911b2d8768eb7a4e843b20bfe02f/check-runs --jq '[.check_runs[] | {name, app: .app.slug}]'
-    [{"app":"github-advanced-security","name":"zizmor"},{"app":"github-actions","name":"Audit workflows (zizmor)"},{"app":"github-actions","name":"dependency-review"},{"app":"github-actions","name":"Reject Trojan Source Unicode"},{"app":"github-actions","name":"DCO sign-off"},{"app":"github-actions","name":"Reject Trojan Source Unicode"}]
+    $ gh api repos/iderex/nachtwache/commits/2bd4f072588a1e56306a4c616fb19a8dbd59c0d5/check-runs --jq '[.check_runs[] | {name, app: .app.slug}]'
+    [{"app":"github-advanced-security","name":"zizmor"},{"app":"github-actions","name":"DCO sign-off"},{"app":"github-actions","name":"dependency-review"},{"app":"github-actions","name":"Deterministic PR-hygiene checks"},{"app":"github-actions","name":"Audit workflows (zizmor)"},{"app":"github-actions","name":"Reject Trojan Source Unicode"},{"app":"github-actions","name":"Decision records"},{"app":"github-actions","name":"Reject Trojan Source Unicode"}]
 
-Run the same command against your own head to see what your change produced.
+A head is the only place these names are facts, so run the same command against
+your own rather than trusting the paste above to still describe the set.
 
 Two things in that output are in no workflow file. `zizmor` is not a job in
 `.github/workflows/zizmor.yml`. It comes from another application, the code
@@ -163,12 +200,26 @@ two runs produce is a name whose verdict depends on which run is read.
 Issue #36 is where these names are required by the branch protection, and it
 carries both measurements with the working they came from.
 
-Four of the five workflows produce a run on a pull request. `Scorecard analysis`
+Six of the seven workflows produce a run on a pull request. `Scorecard analysis`
 does not: it is triggered by a push to the default branch, by a weekly schedule
 and by a change to the branch protection, so it audits what has already landed
 and never gates a change.
 
 `DCO sign-off` is the sign-off check above.
+
+`Decision records` refuses a file under `docs/decisions/` that departs from the
+form the register sets. It runs `.github/scripts/check-decisions.sh`, and what
+it refuses, together with the longer list of what it does not, is in
+[docs/decisions/README.md](docs/decisions/README.md) rather than here.
+
+`Deterministic PR-hygiene checks` refuses the faults in a pull request that a
+machine can decide the same way twice: an empty body, a body naming no issue, a
+commit subject a tool wrote by default, a changed or added path outside the
+`Scope:` line of every issue the body names, and a committed editor or system
+leftover. It reports sign-off as not evaluated, because `DCO sign-off` already
+answers that question and a second implementation would be a second answer with
+a second carve-out. The rule ids and the bound on each one are in the header of
+`.github/scripts/check-pr-hygiene.sh`, which is the authority for them.
 
 `Reject Trojan Source Unicode` refuses bidirectional and invisible Unicode
 control characters in tracked text. Those are the characters that make a file
@@ -192,7 +243,8 @@ issue #16 adds the module and issue #17 pins the graph.
 
 ## Running the checks here
 
-Two of the four reproduce on an ordinary machine with no account and no network.
+Four of the six reproduce on an ordinary machine with no account and no network,
+and the fourth of those only in part.
 
 The Unicode guard is one command, and the pattern is the one the workflow uses:
 
@@ -210,6 +262,30 @@ The sign-off check reproduces against your own branch:
 
 Every commit in that output should be followed by a line identical to the name
 and address on the same line.
+
+The decision register check is the same script the workflow runs, and it needs a
+shell and awk:
+
+    $ .github/scripts/check-decisions.sh docs/decisions
+    check-decisions: examined 14 file(s) in docs/decisions for the four sections and for supersede references
+
+Exit status 0 is the clean result, 1 means it refused something, and 2 means it
+could not judge, which is a directory that is not there or one holding no files.
+The third is separate from the second so a run that examined nothing cannot be
+read as one that examined the register and found it good. Point it at a copy of
+the register with a deliberate fault in it to watch it bite.
+
+The hygiene check is the same script too, and this is the part that reproduces
+only in part:
+
+    $ .github/scripts/check-pr-hygiene.sh --body body.md --base origin/main --head HEAD
+
+with your pull request body in `body.md`. Two of its five rules compare changed
+paths against the `Scope:` line of every issue your body names, and those bodies
+come from the tracker rather than from the tree, so without `--issues DIR` the
+run reports one of the two as skipped and refuses every added path under the
+other. A skipped rule is printed as skipped, which is what keeps a local run
+that covered less than the whole set from reading like one that covered it all.
 
 The workflow audit needs `uv` on the machine, which this document does not assume
 you have. The pinned version and both invocations are in the workflow file, and
@@ -234,30 +310,40 @@ No check is required by the branch protection. The ruleset output above shows
 check is red, or while a check never ran at all. Issue #36 is where the checks
 that exist are required by name once each has produced a run.
 
-Nothing judges a commit message. The request is that a message states what
-changed and what failure the change prevents, and where it corrects something,
-what was wrong and how it was found. Issue #35 is where a machine reads the
-mechanical part of that.
+Nothing judges what a commit message says. `Deterministic PR-hygiene checks`
+refuses a subject a tool wrote by default, and matches the whole subject rather
+than a prefix, so it separates `Update README.md` from `Update the pinned linter
+version, which had drifted`. Whether the second one states what changed and what
+failure the change prevents is the request, and nothing reads it. Issue #35 is
+where the mechanical half of it is carried, and its own check says which half
+that is.
 
-Nothing judges whether a change is one topic. The request is one topic per commit
-and per pull request, because a commit carrying two unrelated changes has a
-message describing one of them. Issue #35 again.
+Nothing judges whether a change is one topic. `change-inside-scope` refuses a
+path outside the `Scope:` of every issue the body names, which catches a second
+topic that lands in somebody else's paths and does not catch one inside the same
+scope. The request is one topic per commit and per pull request, because a commit
+carrying two unrelated changes has a message describing one of them. Issue #35
+again.
 
-Nothing refuses a pull request body that carries no evidence. The request is the
-section below, and issue #35 covers the deterministic half of it, which is that
-the body is not empty and names an issue.
+Nothing refuses a pull request body that carries no evidence. The half of it a
+machine can decide is refused today: `body-names-an-issue` refuses an empty body
+and one that names no issue. Whether what is in the body argues the change is
+the request, and the section below is what it asks for.
 
-Nothing refuses a decision file that is missing one of its four sections, and
-nothing refuses one that names a superseded file which does not exist. Issue #1
-owes that check along with `docs/decisions/README.md`, which is where the form
-of a decision file is set. This document does not restate the form, because two
-statements of one rule drift apart and the one in the wrong place is the one
-somebody follows.
+A decision file missing one of its four sections is refused, and so is one whose
+supersede line names a file that is not in the register. What stays a request is
+everything else about the form: the number on the title line matching the number
+in the file name, two files claiming one number, a file name that does not follow
+the pattern, and a supersede recorded on one side only. That list belongs to
+`docs/decisions/README.md`, which is where the form is set, and this document
+does not restate it, because two statements of one rule drift apart and the one
+in the wrong place is the one somebody follows. Issue #1 is where the rest of
+that form gains a mechanism.
 
-Nothing runs a build or a suite, because there is neither. Issue #3 chooses the
-language and the toolchain, issue #16 adds the module, and issue #18 lays out the
-test harness. The milestone after those is where the gate is built, and every
-check in it is required by issue #36 rather than by this sentence.
+Nothing runs a build or a suite, because there is neither. Issue #16 adds the
+module the language decision describes and issue #18 lays out the test harness.
+The milestone after those is where the gate is built, and every check in it is
+required by issue #36 rather than by this sentence.
 
 ## What a change carries
 
@@ -304,10 +390,13 @@ Every decision that shapes the architecture is a numbered file under
 turns out wrong is not edited; a new file supersedes it by number and names the
 file it replaces, and the old file stays in the tree saying what superseded it.
 
-Issue #1 is where the form of those files and their own README land, and issue #2
-collects the decisions that belong to the maintainer rather than to whoever
-reaches them first. Work that depends on an unanswered entry in #2 is blocked by
-it and says so in its own body.
+The form itself is in
+[docs/decisions/README.md](docs/decisions/README.md), which is decision 0001 and
+is read by the `Decision records` check like every other file in that directory.
+Issue #1 is where the rest of that form gains a mechanism. Issue #2 collects the
+decisions that belong to the maintainer rather than to whoever reaches them
+first, and work that depends on an unanswered entry there is blocked by it and
+says so in its own body.
 
 ## Conduct, security and who decides
 
