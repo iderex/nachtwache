@@ -259,24 +259,43 @@ issue #34, and it is the second condition of issue #41.
 The shape asked for is that no workflow grants a scope at the top of the file,
 where it reaches every job including one added later, and that each job states
 the minimum it needs. What the mainline holds is printed rather than described,
-because a change to this is in flight and a sentence here would be stale before
-it is read:
+because a sentence here drifts against the directory it describes:
 
     $ git grep -n 'permissions:' origin/main -- .github/workflows/
-    origin/main:.github/workflows/dco.yml:14:permissions:
-    origin/main:.github/workflows/decision-records.yml:12:permissions:
-    origin/main:.github/workflows/dependency-review.yml:8:permissions:
-    origin/main:.github/workflows/pr-hygiene.yml:13:permissions:
+    origin/main:.github/workflows/dco.yml:15:permissions: {}
+    origin/main:.github/workflows/dco.yml:28:    permissions:
+    origin/main:.github/workflows/decision-records.yml:13:permissions: {}
+    origin/main:.github/workflows/decision-records.yml:28:    permissions:
+    origin/main:.github/workflows/dependency-review.yml:8:permissions: {}
+    origin/main:.github/workflows/dependency-review.yml:25:    permissions:
+    origin/main:.github/workflows/pr-hygiene.yml:13:permissions: {}
+    origin/main:.github/workflows/pr-hygiene.yml:29:    permissions:
     origin/main:.github/workflows/scorecard.yml:39:permissions:
     origin/main:.github/workflows/scorecard.yml:57:    permissions:
-    origin/main:.github/workflows/unicode-guard.yml:12:permissions:
+    origin/main:.github/workflows/unicode-guard.yml:13:permissions: {}
+    origin/main:.github/workflows/unicode-guard.yml:28:    permissions:
     origin/main:.github/workflows/zizmor.yml:30:permissions: {}
     origin/main:.github/workflows/zizmor.yml:44:    permissions:
 
 A declaration at column zero is a top-level grant and an indented one is on a
 job. Run that command rather than reading the output above, which was taken on
-2026-08-08. Pull request #101 is the change that moves the top-level grants down,
-and this file is not the authority for the result.
+2026-08-09. Seven files, seven job blocks, and six of the seven grant nothing at
+the top. `scorecard.yml` is the one that keeps `contents: read` there, and the
+comment above it in that file gives the reason, which is that a read-only
+top-level declaration is itself one of the things the scorecard reads.
+
+Every write scope in the directory is on a job, and there are three of them:
+
+    $ git grep -nE '^ +[a-z-]+: write' origin/main -- .github/workflows/
+    origin/main:.github/workflows/scorecard.yml:62:      security-events: write # upload the SARIF result to the code-scanning dashboard
+    origin/main:.github/workflows/scorecard.yml:63:      id-token: write # publish results to the OpenSSF API (badge and public score) via OIDC
+    origin/main:.github/workflows/zizmor.yml:45:      security-events: write # upload the SARIF into the code-scanning tab
+
+So no job here can write to the repository, its contents, its pull requests or
+its packages. That is a measurement of the directory on the day it was taken and
+not a property anything holds in place. A top-level grant added tomorrow is
+refused by nothing, which is the same gap as the pin rule above and lands in the
+same place.
 
 ## What this document does not cover
 
