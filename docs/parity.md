@@ -119,7 +119,11 @@ sentence rather than a minimum.
 Different language, same scanner, and the workflow files are analysed for the
 reason they are there at all, which is that they run with this repository's own
 credentials. The overlap with `Audit workflows (zizmor)` over those same files
-is real and is argued in issue #41 rather than resolved by silence here.
+is real. This document sent that argument to issue #41. That issue is closed,
+and `docs/supply-chain.md`, the document it produced, says it covers two
+analysers and no others, and the code scanning suite is neither of them. So the
+overlap is named here and argued in no document, and issue #33 meets it
+unsettled rather than finding it decided.
 
 `Enforce greppable invariants` keeps its name and gets a different table. The
 invariants there hold a login path in place; the ones here are about where a
@@ -144,10 +148,13 @@ asset in this tree for a formatter of that kind to keep consistent:
     exit=0
 
 The listing is empty and the exit status is zero, which is git reporting that it
-matched nothing rather than that it failed. Formatting is covered instead by
-`format and generated files are current`, issue #27, which reformats the tree
-and fails if anything moved. The day this repository grows a web asset, the drop
-stops being justified and this row is where that is noticed.
+matched nothing rather than that it failed. This document sent the formatting
+coverage to `format and generated files are current`, issue #27, which was to
+reformat the tree and fail if anything moved. No check of that name produces a
+run on this repository, and that issue is closed as completed, so what the drop
+names as its replacement is held by nothing and owed by no open issue. The day
+this repository grows a web asset, the drop stops being justified and this row
+is where that is noticed.
 
 That is the only drop. Twelve of the thirteen contexts are kept in some form.
 
@@ -170,8 +177,9 @@ That is the only drop. Twelve of the thirteen contexts are kept in some form.
   issue #24. The original ships to one runtime. Contributors here work on three
   operating systems, and the headless and unelevated rule in
   `docs/decisions/0015-headless-and-unelevated.md` is only proven on all three.
-- `format and generated files are current`, issue #27, which is also where the
-  dropped formatter's coverage goes.
+- `format and generated files are current`, which is also where this document
+  sends the dropped formatter's coverage. Issue #27 carried it and is closed, so
+  this entry names a check with no run and no open issue behind it.
 
 ## Deferred, each to the milestone that owns it
 
@@ -204,6 +212,12 @@ produces today, and one is the drop. An issue is a plan rather than a control,
 so more than half of this table is intention. What is measured here is that every
 context on the other board has a named disposition and that nothing is quietly
 missing, not that the coverage exists.
+
+It does not claim that every issue it names is open. Every row of the table
+names an open issue or a check run, and that is read from the tracker rather
+than remembered. Outside the table this document names issue #27 twice and issue
+#41 once, both of them closed, and the three places carry that rather than
+reading as work somebody still holds.
 
 It does not claim that the two gates are equivalent in strength. The board this
 is measured against requires its thirteen by name on its protected branch. This
