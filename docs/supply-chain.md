@@ -185,10 +185,12 @@ The pull-request body is where that is argued, which
 
 ### Code-Review, score 0, accepted with the same reason
 
-Zero of the last ten changesets carried an approving review, which is what the
-paragraph above describes rather than a separate finding. It is listed
-separately because the scorecard scores it separately, and a reader comparing
-this file against the alert list should find both.
+No changeset in the window the scorecard samples carried an approving review,
+which is what the paragraph above describes rather than a separate finding. How
+many changesets that window holds moves as changes land, so the listing above
+carries the number for the day it was read and this sentence does not restate
+it. It is listed separately because the scorecard scores it separately, and a
+reader comparing this file against the alert list should find both.
 
 ### Maintained, score 0, accepted and self-retiring
 
