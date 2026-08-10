@@ -291,13 +291,16 @@ The workflow audit needs `uv` on the machine, which this document does not assum
 you have. The pinned version and both invocations are in the workflow file, and
 that file rather than this one is the authority for them:
 
-    $ git grep -n 'ZIZMOR_VERSION' -- .github/workflows/zizmor.yml
-    .github/workflows/zizmor.yml:48:      ZIZMOR_VERSION: "1.26.1"
-    .github/workflows/zizmor.yml:63:        run: uvx --no-build "zizmor@${ZIZMOR_VERSION}" --strict-collection --min-severity=low --format=sarif . > results.sarif
-    .github/workflows/zizmor.yml:82:        run: uvx --no-build "zizmor@${ZIZMOR_VERSION}" --strict-collection --min-severity=low --format=plain .
+    $ git grep -n 'ZIZMOR_VERSION' origin/main -- .github/workflows/zizmor.yml
+    origin/main:.github/workflows/zizmor.yml:48:      ZIZMOR_VERSION: "1.26.1"
+    origin/main:.github/workflows/zizmor.yml:67:        run: uvx --no-build "zizmor@${ZIZMOR_VERSION}" --strict-collection --persona=pedantic --min-severity=low --format=sarif . > results.sarif
+    origin/main:.github/workflows/zizmor.yml:86:        run: uvx --no-build "zizmor@${ZIZMOR_VERSION}" --strict-collection --persona=pedantic --min-severity=low --format=plain .
 
-The second of those two is the one that fails the build. `dependency-review` runs
-only on GitHub and has no local form.
+The second of those two is the one that fails the build. Run the invocation whole
+rather than assembling one from the flags you recognise: a run without
+`--persona=pedantic` reports a narrower set than the gate does, and
+[docs/supply-chain.md](docs/supply-chain.md) is where that flag is argued.
+`dependency-review` runs only on GitHub and has no local form.
 
 ## What is asked for rather than enforced
 
