@@ -56,9 +56,9 @@ The default branch, and nothing else. There is no release yet:
     0
 
 Issue #89 is the first release an operator can run, and issue #84 is where the
-versioning policy is decided. Once there is a release, this section states which
-released versions receive fixes, and it will be a small number of them rather
-than all of them.
+versioning policy is decided. Once there is a release, the paragraph here will name which
+released versions receive fixes, and it will be a small number of them and never
+all of them.
 
 ## What is in scope
 
