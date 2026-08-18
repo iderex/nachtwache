@@ -172,5 +172,5 @@ Nothing here is refused or proven today. Issue #13's own definition of done asks
 for the behaviour to be provable in the suite from a recording with no live
 stream involved, and there is no suite in this tree and no recording in it. The
 in-process upstream that misbehaves on demand, which is what such a proof runs
-against, is issue #52. Until that exists this file states an intention and
+against, is issue #52. Until that exists what stands here is an intention, and
 nothing measures whether the program has it.

@@ -122,9 +122,9 @@ operator's own endpoints and nothing else, which is the mechanism named above.
 The second is possibly later, and under it the boundary still has to be drawn
 now, which is a line this file does not draw.
 
-This document is written as though the first option had been taken, because that
-is what the plan assumes throughout. Read that as an assumption rather than as a
-decision recorded somewhere else. If the answer is never, the document stands as
+Everything below assumes the first option was taken, because that is what the
+plan assumes throughout. Read that as an assumption; no decision recorded
+elsewhere stands behind it. If the answer is never, the document stands as
 written. If it is not, what moves is the shape of the allowlist in issue #48 and
 what the verb in issue #83 has to print, and both are already named above as
 owed rather than built.

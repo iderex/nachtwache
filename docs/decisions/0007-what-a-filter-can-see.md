@@ -98,7 +98,7 @@ recording reached the evaluation.
   its meaning.
 - An open context carrying whatever is available, with the discipline left to
   the filter author. It is cheap now and it removes the ability to refuse the
-  violation later, which is the property this file exists to create.
+  violation later, which is the property this decision creates.
 
 ## What it costs
 

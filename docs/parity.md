@@ -6,7 +6,7 @@ document says, for each one, whether the control is kept here, kept with a
 different implementation, or dropped, and it names the counterpart and where the
 counterpart is.
 
-The list is read from the ruleset rather than remembered:
+The list comes out of the ruleset itself:
 
     $ gh api repos/iderex/jellyfin-plugin-sso/rulesets --jq '.[] | select(.name == "Protect main and 5.0") | .id'
     18802863
@@ -54,9 +54,9 @@ with a check red or with a check that never ran:
 Issue #36 is where the checks that exist are required by name. Until it lands,
 every green run named below is evidence about one change rather than a gate.
 
-The check runs this repository produces today are read from a pull request head
-rather than from the tree, because a check-run name is a thing a run creates and
-a workflow file only proposes. Taken from the head of pull request #100:
+The check runs this repository produces today are read from a pull request head,
+because a check-run name is a thing a run creates and a workflow file only
+proposes, so the tree cannot answer it. Taken from the head of pull request #100:
 
     $ gh api repos/iderex/nachtwache/commits/d53a7e77670bdebd4e2ae8b21e17bdd35883fca0/check-runs --jq '[.check_runs[].name] | sort | unique'
     ["Audit workflows (zizmor)","DCO sign-off","Decision records","Deterministic PR-hygiene checks","Reject Trojan Source Unicode","dependency-review","zizmor"]
@@ -94,21 +94,21 @@ scanner: the suite-level context and the per-language analysis, which is why
 `DCO sign-off`, `Reject Trojan Source Unicode`, `Audit workflows (zizmor)` and
 `dependency-review` are the four this repository already runs unchanged. What
 each of them refuses, and what a green run of it does and does not mean here, is
-in `CONTRIBUTING.md` rather than restated in this file.
+in `CONTRIBUTING.md`, and none of it is restated here.
 
 `Deterministic PR-hygiene checks` is kept unchanged in name and in five of its
 six rules. The sign-off rule is reported by that check as not evaluated, with
 the reason and with where sign-off is refused instead, and issue #35 is where
-that departure is settled rather than left in a run's output.
+that departure gets settled, so it stops living in a run's output.
 
 None of the four is required by the protection here, which is the paragraph
-about #36 above rather than a separate gap per row.
+about #36 above, so no row carries a gap of its own for it.
 
 ## Kept with a different implementation
 
-`build` keeps its name and builds for the two target architectures rather than
-for two framework targets, because what ships here is one binary that has to run
-on a small board as well as on a desktop.
+`build` keeps its name, and what it builds is the two target architectures in
+place of two framework targets, because what ships here is one binary that has to
+run on a small board as well as on a desktop.
 
 `ABI floor build` becomes `oldest supported toolchain`. There is no host
 application whose interface has to hold, and the risk that check exists against
@@ -131,13 +131,14 @@ network call, a disk write, a clock read and a secret may appear.
 
 `Package (JPRM) / Build package` and `Package (JPRM) / Generate SBOM` become
 `Image (container) / build` and `Image (container) / SBOM`, because the artefact
-an operator installs is an image rather than a plugin package. Both sit in M8
+an operator installs here is an image, where the original ships a plugin
+package. Both sit in M8
 with the rest of the container work.
 
-The gating replay of a committed fuzz seed corpus is kept, over this project's
-own decoder and filter parser rather than over an authentication callback. It
-produces no context of its own on the board it comes from, so it is named here
-rather than in the table, and issue #40 is where it lands.
+The gating replay of a committed fuzz seed corpus is kept, and here it runs over
+this project's own decoder and filter parser; on the board it comes from it runs
+over an authentication callback. It produces no context of its own there, so this
+paragraph names it and the table does not, and issue #40 is where it lands.
 
 ## Dropped
 
@@ -148,7 +149,7 @@ asset in this tree for a formatter of that kind to keep consistent:
     exit=0
 
 The listing is empty and the exit status is zero, which is git reporting that it
-matched nothing rather than that it failed. This document sent the formatting
+matched nothing; a failure would look different. This document sent the formatting
 coverage to `format and generated files are current`, issue #27, which was to
 reformat the tree and fail if anything moved. No check of that name produces a
 run on this repository, and that issue is closed as completed, so what the drop
@@ -165,13 +166,13 @@ That is the only drop. Twelve of the thirteen contexts are kept in some form.
 - `no network in the gating suite`, issue #29. The whole design of the suite
   rests on it, so it is refused rather than requested.
 - `coverage floor`, issue #28. A wrong comparison here does not crash, it fails
-  to wake somebody up, so how much of the deciding code a test reaches is gated
-  rather than reviewed.
+  to wake somebody up, so how much of the deciding code a test reaches is gated,
+  and no review is asked to catch it.
 - `dependencies are pinned and tidy`, issue #30. This runs unattended on
   somebody's home network, so every dependency is a party running code there and
   it is registered as one.
-- `known vulnerable dependencies`, issue #32, as its own gate rather than a step
-  inside the build, because `SECURITY.md` makes a promise about it that has to
+- `known vulnerable dependencies`, issue #32, standing as its own gate outside
+  the build, because `SECURITY.md` makes a promise about it that has to
   be visible as a verdict.
 - `tests (ubuntu-latest)`, `tests (macos-latest)` and `tests (windows-latest)`,
   issue #24. The original ships to one runtime. Contributors here work on three
@@ -202,9 +203,10 @@ endpoint somebody owns, issue #69. A required check an outside contributor
 cannot run is a check that blocks them, so these run on a schedule and on
 request, and their results are reported rather than required. The build tags
 that keep them out of the default run are fixed in
-`docs/decisions/0015-headless-and-unelevated.md` rather than here.
+`docs/decisions/0015-headless-and-unelevated.md`, and this page does not repeat
+them.
 
-## What this document does not claim
+## The claims not being made here
 
 It does not claim that the counterparts work. Seven of the thirteen rows point
 at an open issue and nothing else, five name a check run this repository
@@ -214,10 +216,9 @@ context on the other board has a named disposition and that nothing is quietly
 missing, not that the coverage exists.
 
 It does not claim that every issue it names is open. Every row of the table
-names an open issue or a check run, and that is read from the tracker rather
-than remembered. Outside the table this document names issue #27 twice and issue
-#41 once, both of them closed, and the three places carry that rather than
-reading as work somebody still holds.
+names an open issue or a check run, and the tracker is where that is read. Outside the table this note names issue #27 twice and issue
+#41 once, both of them closed, and all three places say so, so none of them
+reads as work somebody still holds.
 
 It does not claim that the two gates are equivalent in strength. The board this
 is measured against requires its thirteen by name on its protected branch. This
